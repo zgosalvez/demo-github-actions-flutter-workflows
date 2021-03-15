@@ -79,7 +79,7 @@ jobs:
         with:
           name: web
           path: build/web
-      # - run: make sure this is structured as a firebase project
+      # make sure this is structured as a firebase project
       - run: |
           curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
           chmod +x ./firebase_tools
