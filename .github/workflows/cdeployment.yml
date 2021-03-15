@@ -68,9 +68,9 @@ jobs:
           name: ${{ matrix.file }}
           path: app.${{ matrix.file }}
       - run: |
-        curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
-        chmod +x ./firebase_tools
-        ./firebase_tools appdistribution:distribute app.${{ matrix.file }} --app "$FIREBASE_APP_ID"
+          curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
+          chmod +x ./firebase_tools
+          ./firebase_tools appdistribution:distribute app.${{ matrix.file }} --app "$FIREBASE_APP_ID"
 
   release_web:
     name: Release Web
@@ -83,6 +83,6 @@ jobs:
           path: build/web
       # - run: make sure this is structured as a firebase project
       - run: |
-        curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
-        chmod +x ./firebase_tools
-        ./firebase_tools hosting:clone SOURCE_SITE_ID:SOURCE_CHANNEL_ID TARGET_SITE_ID:live
+          curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
+          chmod +x ./firebase_tools
+          ./firebase_tools deploy --only hosting
