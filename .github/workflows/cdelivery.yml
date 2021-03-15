@@ -1,0 +1,55 @@
+name: CDelivery
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter test
+
+  build_apk:
+    name: Build for Release (apk)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build apk
+      - uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build_ipa:
+    name: Build for Release (ipa)
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build ipa
+      - uses: actions/upload-artifact@v2 
+        with:
+          name: xcarchive
+          path: build/ios/archive/Runner.xcarchive
+
+  build_web:
+    name: Build for Release (web)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build web
+      # - run: zip --recurse-paths ../web.zip .
+      #   working-directory: build
+      - uses: actions/upload-artifact@v2 
+        with:
+          name: web
+          path: build/web.zip
