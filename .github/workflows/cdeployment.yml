@@ -48,12 +48,10 @@ jobs:
       - uses: actions/checkout@v2
       - uses: subosito/flutter-action@v1
       - run: flutter build web
-      - run: zip --recurse-paths ../web.zip .
-        working-directory: build
       - uses: actions/upload-artifact@v2 
         with:
           name: web
-          path: build/web.zip
+          path: build/web
 
   release_app:
     name: Release App
