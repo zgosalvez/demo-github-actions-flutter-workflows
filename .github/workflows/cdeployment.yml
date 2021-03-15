@@ -1,0 +1,88 @@
+name: CDeployment
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter test
+
+  build_apk:
+    name: Build for Release (apk)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build apk
+      - uses: actions/upload-artifact@v2
+        with:
+          name: apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+  build_ipa:
+    name: Build for Release (ipa)
+    needs: test
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build ipa
+      # - run: bundle exec fastlane export_ipa using build/ios/archive/Runner.xcarchive
+      - uses: actions/upload-artifact@v2 
+        with:
+          name: ipa
+          path: build/ios/Runner.ipa
+
+  build_web:
+    name: Build for Release (web)
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: subosito/flutter-action@v1
+      - run: flutter build web
+      - run: zip --recurse-paths ../web.zip .
+        working-directory: build
+      - uses: actions/upload-artifact@v2 
+        with:
+          name: web
+          path: build/web.zip
+
+  release_app:
+    name: Release App
+    needs: [build_apk, build_ipa]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        file: [apk, ipa]
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.file }}
+          path: app.${{ matrix.file }}
+      - run: |
+        curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
+        chmod +x ./firebase_tools
+        ./firebase_tools appdistribution:distribute app.${{ matrix.file }} --app "$FIREBASE_APP_ID"
+
+  release_web:
+    name: Release Web
+    needs: build_web
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v2
+        with:
+          name: web
+          path: build/web
+      # - run: make sure this is structured as a firebase project
+      - run: |
+        curl -Lo ./firebase_tools https://firebase.tools/bin/linux/latest
+        chmod +x ./firebase_tools
+        ./firebase_tools hosting:clone SOURCE_SITE_ID:SOURCE_CHANNEL_ID TARGET_SITE_ID:live
