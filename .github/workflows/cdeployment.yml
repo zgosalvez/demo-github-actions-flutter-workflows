@@ -61,7 +61,7 @@ jobs:
       matrix:
         file: [apk, ipa]
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: ${{ matrix.file }}
           path: app.${{ matrix.file }}
@@ -75,7 +75,7 @@ jobs:
     needs: build_web
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v4.1.7
         with:
           name: web
           path: build/web
